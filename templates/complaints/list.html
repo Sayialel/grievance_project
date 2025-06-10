@@ -1,0 +1,46 @@
+<!-- complaints/templates/complaints/list.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>All Complaints</h2>
+
+    <form method="get" class="form-inline mb-3">
+        <input type="text" name="q" placeholder="Search complaints..." value="{{ request.GET.q }}" class="form-control mr-2">
+        <select name="category" class="form-control mr-2">
+            <option value="">All Categories</option>
+            {% for key, value in category_choices %}
+                <option value="{{ key }}" {% if request.GET.category == key %}selected{% endif %}>{{ value }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </form>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Date Submitted</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for complaint in complaints %}
+                <tr>
+                    <td>{{ complaint.title }}</td>
+                    <td>{{ complaint.get_category_display }}</td>
+                    <td>{{ complaint.status }}</td>
+                    <td>{{ complaint.location }}</td>
+                    <td>{{ complaint.date_submitted }}</td>
+                    <td><a href="{% url 'complaints:complaint_detail' complaint.id %}">View</a></td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="6">No complaints found.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

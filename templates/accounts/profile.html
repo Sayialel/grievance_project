@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>User Profile</h2>
+<p><strong>Username:</strong> {{ user.username }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>Phone:</strong> {{ user.phone_number }}</p>
+{% if user.profile_image %}
+    <img src="{{ user.profile_image.url }}" width="150" height="150" alt="Profile Picture">
+{% endif %}
+<a href="{% url 'accounts:logout' %}">Logout</a>
+{% endblock %}
