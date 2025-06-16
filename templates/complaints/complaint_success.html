@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="max-w-xl mx-auto mt-10 text-center bg-white p-8 rounded shadow">
+  <h1 class="text-3xl font-bold text-green-600 mb-4">Complaint Submitted!</h1>
+  <p class="text-gray-700">Thank you for helping protect the environment.</p>
+  <a href="/" class="inline-block mt-6 text-blue-600 hover:underline">← Back to Home</a>
+</div>
+{% endblock %}
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complaint Submitted Successfully{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-success">
+        <div class="card-header bg-success text-white">
+          <h3 class="mb-0"><i class="fas fa-check-circle"></i> Complaint Submitted Successfully</h3>
+        </div>
+        <div class="card-body text-center">
+          <div class="mb-4">
+            <i class="fas fa-clipboard-check text-success" style="font-size: 80px;"></i>
+          </div>
+
+          <h4 class="mb-3">Thank you for submitting your environmental complaint</h4>
+
+          <p class="lead mb-4">
+            Your complaint has been recorded and will be addressed by our environmental officers. 
+            You can track the status of your complaint in your dashboard.
+          </p>
+
+          <div class="alert alert-info" role="alert">
+            <strong>Note:</strong> A confirmation email with the details of your complaint has been sent to your registered email address.
+          </div>
+
+          <div class="d-grid gap-2 col-md-8 mx-auto mt-4">
+            <a href="{% url 'complaints:user_dashboard' %}" class="btn btn-primary btn-lg">
+              <i class="fas fa-tachometer-alt"></i> View My Complaints
+            </a>
+            <a href="{% url 'complaints:submit_complaint' %}" class="btn btn-outline-secondary">
+              <i class="fas fa-plus-circle"></i> Submit Another Complaint
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

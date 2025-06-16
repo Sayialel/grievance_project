@@ -18,14 +18,16 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-
+from complaints.views import homepage
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
     path('complaints/', include('complaints.urls')),
     path('dashboard/', include('dashboard.urls')),
-    path('notifications/', include('notifications.urls')),
-    path('api/', include('api.urls')),
+    path('', homepage, name='home'),  # 👈 Base URL points to home view
+
+    #  path('notifications/', include('notifications.urls')),
+  #  path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:

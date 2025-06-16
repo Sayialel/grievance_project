@@ -1,9 +1,17 @@
 from django.urls import path
 from . import views
 
+app_name = 'complaints'
 urlpatterns = [
-    path('', views.complaint_list_view, name='complaint_list'),
-    path('create/', views.create_complaint_view, name='create_complaint'),
-    path('<int:complaint_id>/', views.complaint_detail_view, name='complaint_detail'),
-    path('<int:complaint_id>/status/', views.update_complaint_status_view, name='update_complaint_status'),
+    path('submit/', views.submit_complaint, name='submit_complaint'),
+    path('success/', views.complaint_success, name='complaint_success'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
+
+    # Role-specific dashboards
+    path('user/dashboard/', views.user_dashboard, name='user_dashboard'),
+    path('officer/dashboard/', views.officer_dashboard, name='officer_dashboard'),
+    path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
+
+    # Complaint detail view
+    path('complaint/<int:pk>/', views.complaint_detail, name='complaint_detail'),
 ]

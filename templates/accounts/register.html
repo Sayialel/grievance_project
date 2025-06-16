@@ -1,9 +1,99 @@
 {% extends 'base.html' %}
+{% block title %}Register - Environmental Grievance System{% endblock %}
+
 {% block content %}
-<h2>Register</h2>
-<form method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Register</button>
-</form>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <!-- Logo & Header -->
+    <div class="card-header text-center">
+      <div class="mb-2">
+        <i class="fas fa-user-plus fa-3x text-white mb-3"></i>
+      </div>
+      <h3>Create Account</h3>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} d-flex align-items-center" role="alert">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle me-2"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+              <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+            {% else %}
+              <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+            <div>{{ message }}</div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <h5 class="card-title text-center mb-4">Join the Environmental Community</h5>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Email field -->
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+          {{ form.email }}
+        </div>
+        {% if form.email.errors %}
+          <div class="text-danger mb-3 small">{{ form.email.errors }}</div>
+        {% endif %}
+
+        <!-- Password field -->
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          {{ form.password1 }}
+        </div>
+        {% if form.password1.errors %}
+          <div class="text-danger mb-3 small">{{ form.password1.errors }}</div>
+        {% endif %}
+
+        <!-- Confirm Password field -->
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-check-double"></i></span>
+          {{ form.password2 }}
+        </div>
+        {% if form.password2.errors %}
+          <div class="text-danger mb-3 small">{{ form.password2.errors }}</div>
+        {% endif %}
+
+        <!-- Role selection -->
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+          {{ form.role }}
+        </div>
+        {% if form.role.errors %}
+          <div class="text-danger mb-3 small">{{ form.role.errors }}</div>
+        {% endif %}
+        <small class="form-text text-muted mb-4 d-block">Select the type of account you need.</small>
+
+        <!-- Terms and Conditions -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+          <label class="form-check-label" for="agreeTerms">
+            I agree to the <a href="#" class="auth-link">Terms of Service</a> and <a href="#" class="auth-link">Privacy Policy</a>
+          </label>
+        </div>
+
+        <!-- Submit button -->
+        <div class="d-grid gap-2 mb-3">
+          <button type="submit" class="btn btn-primary py-2">
+            <i class="fas fa-user-plus me-2"></i> Create Account
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer with links -->
+    <div class="card-footer text-center">
+      <p class="mb-0">Already have an account? <a href="{% url 'accounts:login' %}" class="auth-link">Sign in</a></p>
+    </div>
+  </div>
+</div>
 {% endblock %}

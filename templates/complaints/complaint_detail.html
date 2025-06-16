@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Complaint Details: {{ complaint.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <!-- Back button -->
+    <div class="col-12 mb-3">
+      <a href="{% if user_type == 'admin' %}{% url 'complaints:admin_dashboard' %}{% elif user_type == 'officer' %}{% url 'complaints:officer_dashboard' %}{% else %}{% url 'complaints:user_dashboard' %}{% endif %}" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
+      </a>
+    </div>
+
+    <!-- Complaint details -->
+    <div class="col-md-8">
+      <div class="card mb-4">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+          <h4 class="mb-0">Complaint Details</h4>
+          <span class="badge rounded-pill bg-{{ complaint.status|lower|cut:' ' }} fs-6">{{ complaint.status }}</span>
+        </div>
+        <div class="card-body">
+          <h2 class="card-title">{{ complaint.title }}</h2>
+
+          <div class="row mt-3">
+            <div class="col-md-6">
+              <p><strong>Reported by:</strong> {{ complaint.user.email }}</p>
+              <p><strong>Date Submitted:</strong> {{ complaint.date_submitted|date:"F d, Y h:i A" }}</p>
+              <p><strong>Category:</strong> {{ complaint.get_category_display }}</p>
+            </div>
+            <div class="col-md-6">
+              <p><strong>Location:</strong> {{ complaint.get_location_display }}</p>
+              <p><strong>Status:</strong> {{ complaint.status }}</p>
+              <p><strong>Assigned Officer:</strong> {{ complaint.assigned_officer|default:"Not assigned yet" }}</p>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <h5>Description:</h5>
+            <div class="p-3 bg-light rounded">
+              {{ complaint.description|linebreaks }}
+            </div>
+          </div>
+
+          {% if complaint.image %}
+          <div class="mt-4">
+            <h5>Attachment:</h5>
+            <div class="mt-2">
+              <img src="{{ complaint.image.url }}" alt="Complaint image" class="img-fluid rounded" style="max-height: 300px;">
+              <div class="mt-2">
+                <a href="{{ complaint.image.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                  <i class="fas fa-external-link-alt"></i> View Full Size
+                </a>
+              </div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Admin/Officer actions -->
+    <div class="col-md-4">
+      {% if user_type == 'officer' or user_type == 'admin' %}
+      <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">Officer Actions</h5>
+        </div>
+        <div class="card-body">
+          <!-- Update Status Form -->
+          <form method="post" action="{% url 'complaints:complaint_detail' complaint.pk %}">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="id_status" class="form-label"><strong>Update Status</strong></label>
+              {{ status_form.status }}
+            </div>
+            <button type="submit" name="update_status" class="btn btn-primary mb-3 w-100">
+              <i class="fas fa-save"></i> Update Status
+            </button>
+          </form>
+
+          <hr>
+
+          <!-- Add Activity Form -->
+          <form method="post" action="{% url 'complaints:complaint_detail' complaint.pk %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h5 class="mb-3">Add Activity</h5>
+
+            <div class="mb-3">
+              <label for="id_note" class="form-label">Internal Note</label>
+              {{ activity_form.note }}
+            </div>
+
+            <div class="mb-3">
+              <label for="id_attached_file" class="form-label">Attach File</label>
+              {{ activity_form.attached_file }}
+              <div class="form-text">Upload images or documents related to the complaint.</div>
+            </div>
+
+            <button type="submit" name="add_activity" class="btn btn-success w-100">
+              <i class="fas fa-plus-circle"></i> Add Activity
+            </button>
+          </form>
+
+          <!-- Reassign Officer (Admin only) -->
+          {% if user_type == 'admin' and reassign_form %}
+          <hr>
+          <form method="post" action="{% url 'complaints:complaint_detail' complaint.pk %}">
+            {% csrf_token %}
+            <h5 class="mb-3">Reassign Complaint</h5>
+
+            <div class="mb-3">
+              <label for="id_assigned_officer" class="form-label">Assign Officer ({{ complaint.get_location_display }})</label>
+              {{ reassign_form.assigned_officer }}
+            </div>
+
+            <button type="submit" name="reassign_officer" class="btn btn-warning w-100">
+              <i class="fas fa-user-edit"></i> Reassign Officer
+            </button>
+          </form>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Activities timeline -->
+    <div class="col-12 mt-3">
+      <div class="card">
+        <div class="card-header bg-info text-white">
+          <h4 class="mb-0">Activity Timeline</h4>
+        </div>
+        <div class="card-body">
+          {% if activities %}
+            <div class="timeline">
+              {% for activity in activities %}
+                <div class="timeline-item">
+                  <div class="timeline-point"></div>
+                  <div class="timeline-content card mb-3">
+                    <div class="card-header bg-light d-flex justify-content-between">
+                      <span><strong>{{ activity.officer.email }}</strong> ({{ activity.officer.get_role_display }})</span>
+                      <span>{{ activity.created_at|date:"F d, Y h:i A" }}</span>
+                    </div>
+                    <div class="card-body">
+                      {% if activity.note %}
+                        <div class="mb-3">
+                          {{ activity.note|linebreaks }}
+                        </div>
+                      {% endif %}
+
+                      {% if activity.attached_file %}
+                        <div class="attachment-preview">
+                          {% if activity.attached_file.url|slice:"-3:" in 'jpg,png,gif,jpeg' %}
+                            <img src="{{ activity.attached_file.url }}" alt="Attachment" class="img-fluid rounded mb-2" style="max-height: 200px;">
+                          {% endif %}
+                          <a href="{{ activity.attached_file.url }}" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <i class="fas fa-download"></i> View/Download Attachment
+                          </a>
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle"></i> No activities recorded yet.
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Timeline styling */
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+
+  .timeline:before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ccc;
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 25px;
+  }
+
+  .timeline-point {
+    position: absolute;
+    left: -30px;
+    top: 15px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #007bff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #007bff;
+  }
+
+  .timeline-content {
+    margin-left: 10px;
+  }
+
+  /* Status badge colors */
+  .bg-pending {
+    background-color: #ffc107;
+    color: #212529;
+  }
+
+  .bg-inprogress {
+    background-color: #17a2b8;
+  }
+
+  .bg-resolved {
+    background-color: #28a745;
+  }
+
+  .bg-closed {
+    background-color: #6c757d;
+  }
+</style>
+{% endblock %}

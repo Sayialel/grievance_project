@@ -9,10 +9,34 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+import json
 import os
 from pathlib import Path
 
 from django.conf.global_settings import STATICFILES_DIRS
+from decouple import config
+import firebase_admin
+from firebase_admin import credentials
+from dotenv import load_dotenv
+load_dotenv()
+try:
+    # Get credentials from environment variable
+    firebase_creds_json = os.environ.get('FIREBASE_CREDENTIALS')
+    if firebase_creds_json:
+        # Parse JSON from environment variable
+        firebase_creds_dict = json.loads(firebase_creds_json)
+        cred = credentials.Certificate(firebase_creds_dict)
+        firebase_admin.initialize_app(cred,{
+            'storageBucket':'grievance-project.appspot.com',
+        })
+    else:
+        print("Warning: Firebase credentials not found")
+
+except Exception as e:
+    print(f"Firebase initialization error: {e}")
+
+
+    FIREBASE_API_KEY = config('FIREBASE_API_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -71,6 +95,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'utils.context_processors.user_role',
             ],
         },
     },
@@ -143,13 +168,6 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # Custom user model (to be created later)
-AUTH_USER_MODEL = 'accounts.UserProfile'
+#AUTH_USER_MODEL = 'accounts.UserProfile'
 
-from decouple import config
-import firebase_admin
-from firebase_admin import credentials
-
-FIREBASE_CREDENTIALS = config('FIREBASE_CREDENTIALS')
-cred = credentials.Certificate(FIREBASE_CREDENTIALS)
-firebase_admin.initialize_app(cred)
 

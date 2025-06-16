@@ -1,9 +1,79 @@
 {% extends 'base.html' %}
+{% block title %}Login - Environmental Grievance System{% endblock %}
+
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
+<div class="auth-wrapper">
+  <div class="auth-card">
+    <!-- Logo & Header -->
+    <div class="card-header text-center">
+      <div class="mb-2">
+        <i class="fas fa-leaf fa-3x text-white mb-3"></i>
+      </div>
+      <h3>Welcome Back</h3>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} d-flex align-items-center" role="alert">
+            {% if message.tags == 'success' %}
+              <i class="fas fa-check-circle me-2"></i>
+            {% elif message.tags == 'error' or message.tags == 'danger' %}
+              <i class="fas fa-exclamation-circle me-2"></i>
+            {% elif message.tags == 'warning' %}
+              <i class="fas fa-exclamation-triangle me-2"></i>
+            {% else %}
+              <i class="fas fa-info-circle me-2"></i>
+            {% endif %}
+            <div>{{ message }}</div>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <h5 class="card-title text-center mb-4">Sign in to your account</h5>
+
+      <form method="POST" action="{% url 'accounts:login' %}">
+        {% csrf_token %}
+
+        <!-- Email field -->
+        <div class="input-group mb-3">
+          <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+          {{ form.email }}
+        </div>
+        {% if form.email.errors %}
+          <div class="text-danger mb-3 small">{{ form.email.errors }}</div>
+        {% endif %}
+
+        <!-- Password field -->
+        <div class="input-group mb-4">
+          <span class="input-group-text"><i class="fas fa-lock"></i></span>
+          {{ form.password }}
+        </div>
+        {% if form.password.errors %}
+          <div class="text-danger mb-3 small">{{ form.password.errors }}</div>
+        {% endif %}
+
+        <!-- Remember me checkbox -->
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" id="rememberMe">
+          <label class="form-check-label" for="rememberMe">Remember me</label>
+        </div>
+
+        <!-- Submit button -->
+        <div class="d-grid gap-2 mb-3">
+          <button type="submit" class="btn btn-success py-2">
+            <i class="fas fa-sign-in-alt me-2"></i> Sign In
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Footer with links -->
+    <div class="card-footer text-center">
+      <p class="mb-1">Don't have an account? <a href="{% url 'accounts:register' %}" class="auth-link">Sign up</a></p>
+      <p class="mb-0 small text-muted">By signing in, you agree to our <a href="#" class="text-muted">Terms of Service</a> and <a href="#" class="text-muted">Privacy Policy</a></p>
+    </div>
+  </div>
+</div>
 {% endblock %}
