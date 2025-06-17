@@ -1,8 +1,80 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block title %}Submit Environmental Complaint{% endblock %}
+
 {% block content %}
-<div class="min-vh-100 d-flex align-items-center justify-content py-5 px-3" style="background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #2c3e50 100%);">
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Submit Environmental Complaint</h3>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="alert alert-info mb-4">
+              <i class="fas fa-info-circle"></i> Please provide detailed information about the environmental issue you're reporting. Your complaint will be assigned to an officer in your selected location.
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.title.id_for_label }}" class="form-label">Issue Title</label>
+              {{ form.title }}
+              {% if form.title.errors %}
+                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.description.id_for_label }}" class="form-label">Detailed Description</label>
+              {{ form.description }}
+              {% if form.description.errors %}
+                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+              {% endif %}
+              <div class="form-text">Please provide specific details about what, where, when, and how severe the environmental issue is.</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                  <div class="text-danger small mt-1">{{ form.location.errors }}</div>
+                {% endif %}
+                <div class="form-text">Select the constituency where the issue is located.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                  <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="{{ form.image.id_for_label }}" class="form-label">Upload Image (Optional)</label>
+              {{ form.image }}
+              {% if form.image.errors %}
+                <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+              {% endif %}
+              <div class="form-text">Photos help officers better understand and address the issue.</div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-paper-plane"></i> Submit Complaint
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
   <!-- Header Section -->
   <div class="container-fluid">

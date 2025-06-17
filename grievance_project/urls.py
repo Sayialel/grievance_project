@@ -22,12 +22,13 @@ from complaints.views import homepage
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
-    path('complaints/', include('complaints.urls')),
+    # Note: order matters for URL resolution - put dashboard before complaints
     path('dashboard/', include('dashboard.urls')),
+    path('complaints/', include('complaints.urls')),
     path('', homepage, name='home'),  # 👈 Base URL points to home view
 
     #  path('notifications/', include('notifications.urls')),
-  #  path('api/', include('api.urls')),
+    path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:

@@ -12,6 +12,11 @@ urlpatterns = [
     path('officer/dashboard/', views.officer_dashboard, name='officer_dashboard'),
     path('admin/dashboard/', views.admin_dashboard, name='admin_dashboard'),
 
-    # Complaint detail view
-    path('complaint/<int:pk>/', views.complaint_detail, name='complaint_detail'),
+    # Complaint detail view - using detail as the primary name
+    path('complaint/<int:pk>/', views.complaint_detail, name='detail'),
+
+    # Alternative routes
+    path('', views.dashboard_view, name='home'),  # Redirects based on role
+    path('create/', views.submit_complaint, name='create'),  # Alias for submit_complaint
+    path('detail/<int:complaint_id>/', views.complaint_detail, name='detail'),  # Alternative detail route
 ]

@@ -38,6 +38,11 @@ def register_view(request):
 
                 # Create UserProfile in Django model
                 location = form.cleaned_data.get('location', 'other')
+                # Ensure location is required for officers
+                if role == 'officer' and location == 'other':
+                    messages.error(request, 'Environmental Officers must select a specific constituency.')
+                    return render(request, 'accounts/register.html', {'form': form})
+
                 user_profile = UserProfile.objects.create(
                     uid=uid,
                     email=email,
@@ -49,6 +54,7 @@ def register_view(request):
                 db.collection('users').document(uid).set({
                     'email': email,
                     'role': role,
+                    'location': location,
                     'created_at': firestore.SERVER_TIMESTAMP
                 })
 
@@ -122,7 +128,20 @@ def login_view(request):
                     })
 
                 messages.success(request, 'Login successful.')
-                return redirect('complaints:dashboard')
+
+                # Check if there's a next URL to redirect to
+                next_url = request.session.get('next')
+                if next_url:
+                    del request.session['next']
+                    return redirect(next_url)
+
+                # Otherwise redirect based on user role
+                if user_profile.role == 'officer':
+                    return redirect('dashboard:officer_dashboard')
+                elif user_profile.role == 'admin':
+                    return redirect('dashboard:admin_dashboard')
+                else:  # public user
+                    return redirect('complaints:user_dashboard')
             else:
                 error = data.get('error', {}).get('message', 'Login failed.')
                 messages.error(request, f"Firebase Error: {error}")
@@ -130,6 +149,11 @@ def login_view(request):
             messages.error(request, "Please correct the errors below.")
     else:
         form = LoginForm()
+
+        # Store next parameter if provided in the URL
+        next_param = request.GET.get('next')
+        if next_param:
+            request.session['next'] = next_param
 
     return render(request, 'accounts/login.html', {'form': form})
 

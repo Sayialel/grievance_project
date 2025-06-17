@@ -73,6 +73,16 @@
         {% endif %}
         <small class="form-text text-muted mb-4 d-block">Select the type of account you need.</small>
 
+        <!-- Location field - conditionally shown for officers -->
+        <div class="input-group mb-3" id="locationFieldContainer" style="display: none;">
+          <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+          {{ form.location }}
+        </div>
+        {% if form.location.errors %}
+          <div class="text-danger mb-3 small">{{ form.location.errors }}</div>
+        {% endif %}
+        <small class="form-text text-muted mb-4 d-block" id="locationHelpText" style="display: none;">Select your constituency if you are an Environmental Officer.</small>
+
         <!-- Terms and Conditions -->
         <div class="form-check mb-3">
           <input class="form-check-input" type="checkbox" id="agreeTerms" required>
@@ -94,6 +104,32 @@
     <div class="card-footer text-center">
       <p class="mb-0">Already have an account? <a href="{% url 'accounts:login' %}" class="auth-link">Sign in</a></p>
     </div>
+
+    <!-- JavaScript to toggle location field -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('inputRole');
+        const locationContainer = document.getElementById('locationFieldContainer');
+        const locationHelpText = document.getElementById('locationHelpText');
+
+        // Function to show/hide location field based on role
+        function toggleLocationField() {
+          if (roleSelect.value === 'officer') {
+            locationContainer.style.display = 'flex';
+            locationHelpText.style.display = 'block';
+          } else {
+            locationContainer.style.display = 'none';
+            locationHelpText.style.display = 'none';
+          }
+        }
+
+        // Initialize based on current value
+        toggleLocationField();
+
+        // Add change event listener
+        roleSelect.addEventListener('change', toggleLocationField);
+      });
+    </script>
   </div>
 </div>
 {% endblock %}

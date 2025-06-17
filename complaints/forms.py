@@ -8,12 +8,44 @@ class ComplaintForm(forms.ModelForm):
         model = Complaint
         fields = ['title', 'description', 'location', 'category', 'image']
         widgets = {
-            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Issue Title'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Detailed Description'}),
-            'location': forms.Select(attrs={'class': 'form-control'}),
-            'category': forms.Select(attrs={'class': 'form-control'}),
-            'image': forms.FileInput(attrs={'class': 'form-control'})
+            'title': forms.TextInput(attrs={
+                'class': 'form-control border-0 shadow-sm',
+                'placeholder': 'Enter the title of the environmental issue',
+                'style': 'border-radius: 10px; padding: 12px 15px;'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control border-0 shadow-sm',
+                'placeholder': 'Provide a detailed description of the environmental issue...',
+                'style': 'border-radius: 10px; padding: 15px; min-height: 150px;',
+                'rows': 5
+            }),
+            'location': forms.Select(attrs={
+                'class': 'form-select border-0 shadow-sm',
+                'style': 'border-radius: 10px; padding: 12px 15px;'
+            }),
+            'category': forms.Select(attrs={
+                'class': 'form-select border-0 shadow-sm',
+                'style': 'border-radius: 10px; padding: 12px 15px;'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control border-0 shadow-sm',
+                'style': 'border-radius: 10px; padding: 12px 15px;',
+                'accept': 'image/*'
+            })
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['title'].label = "Issue Title"
+        self.fields['description'].label = "Detailed Description"
+        self.fields['location'].label = "Issue Location"
+        self.fields['category'].label = "Environmental Category"
+        self.fields['image'].label = "Upload Evidence"
+
+        # Add help text
+        self.fields['image'].help_text = "Upload a clear photo of the environmental issue (optional)"
+        self.fields['category'].help_text = "Select the type of environmental issue you're reporting"
+        self.fields['location'].help_text = "Select the area where the issue is located"
 
 class ComplaintActivityForm(forms.ModelForm):
     class Meta:

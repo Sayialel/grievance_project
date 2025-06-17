@@ -45,6 +45,3 @@ class UserProfile(models.Model):
         if self.role != 'officer':
             return 0
         return self.assigned_complaints.filter(status__in=['Pending', 'In Progress']).count()
-
-    def __str__(self):
-        return f"{self.email} ({self.role})"

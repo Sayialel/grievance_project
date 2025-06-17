@@ -20,7 +20,7 @@ class Complaint(models.Model):
     # Get the same constituency choices from UserProfile
     NAIROBI_CONSTITUENCIES = UserProfile.NAIROBI_CONSTITUENCIES
 
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE, related_name='submitted_complaints')
     title = models.CharField(max_length=255)
     description = models.TextField()
     location = models.CharField(max_length=50, choices=NAIROBI_CONSTITUENCIES, default='other')
@@ -61,6 +61,3 @@ class ComplaintActivity(models.Model):
     class Meta:
         verbose_name_plural = "Complaint Activities"
         ordering = ['-created_at']
-
-    def __str__(self):
-        return f"{self.title} - {self.status}"

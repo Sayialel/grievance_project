@@ -8,7 +8,7 @@
   <div class="row">
     <!-- Back button -->
     <div class="col-12 mb-3">
-      <a href="{% if user_type == 'admin' %}{% url 'complaints:admin_dashboard' %}{% elif user_type == 'officer' %}{% url 'complaints:officer_dashboard' %}{% else %}{% url 'complaints:user_dashboard' %}{% endif %}" class="btn btn-outline-secondary">
+      <a href="{% if user_type == 'admin' %}{% url 'complaints:admin_dashboard' %}{% elif user_type == 'officer' %}{% url 'dashboard:officer_dashboard' %}{% else %}{% url 'complaints:user_dashboard' %}{% endif %}" class="btn btn-outline-secondary">
         <i class="fas fa-arrow-left"></i> Back to Dashboard
       </a>
     </div>
@@ -69,7 +69,7 @@
         </div>
         <div class="card-body">
           <!-- Update Status Form -->
-          <form method="post" action="{% url 'complaints:complaint_detail' complaint.pk %}">
+          <form method="post" action="{% url 'complaints:detail' pk=complaint.pk %}">
             {% csrf_token %}
             <div class="mb-3">
               <label for="id_status" class="form-label"><strong>Update Status</strong></label>
@@ -83,7 +83,7 @@
           <hr>
 
           <!-- Add Activity Form -->
-          <form method="post" action="{% url 'complaints:complaint_detail' complaint.pk %}" enctype="multipart/form-data">
+          <form method="post" action="{% url 'complaints:detail' pk=complaint.pk %}" enctype="multipart/form-data">
             {% csrf_token %}
             <h5 class="mb-3">Add Activity</h5>
 
@@ -106,7 +106,7 @@
           <!-- Reassign Officer (Admin only) -->
           {% if user_type == 'admin' and reassign_form %}
           <hr>
-          <form method="post" action="{% url 'complaints:complaint_detail' complaint.pk %}">
+          <form method="post" action="{% url 'complaints:detail' pk=complaint.pk %}">
             {% csrf_token %}
             <h5 class="mb-3">Reassign Complaint</h5>
 
@@ -168,6 +168,22 @@
             <div class="alert alert-info">
               <i class="fas fa-info-circle"></i> No activities recorded yet.
             </div>
+          {% endif %}
+
+          {% if firebase_activities and user_type == 'admin' %}
+          <!-- Debug section for admins to see Firebase activities during transition -->
+          <div class="mt-4 p-3 bg-light rounded">
+            <h5 class="mb-3">Firebase Activities (Debug)</h5>
+            <div class="small">
+              {% for activity in firebase_activities %}
+                <div class="p-2 mb-2 border rounded">
+                  <p><strong>{{ activity.officer_email }}</strong> - {{ activity.created_at|date:"F d, Y h:i A" }}</p>
+                  <p>{{ activity.note }}</p>
+                  <p class="text-muted">Status: {{ activity.status }} | Type: {{ activity.activity_type }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
           {% endif %}
         </div>
       </div>
