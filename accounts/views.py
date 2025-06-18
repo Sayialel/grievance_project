@@ -165,7 +165,7 @@ def login_view(request):
 def logout_view(request):
     request.session.flush()
     messages.success(request, 'You have been logged out.')
-    return redirect('accounts:login')
+    return redirect('home')
 
 # ---------------------------
 # Profile View

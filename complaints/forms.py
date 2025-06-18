@@ -70,6 +70,10 @@ class ComplaintFilterForm(forms.Form):
         ('-location', 'Location (Z-A)'),
         ('-date_submitted', 'Newest First'),
         ('date_submitted', 'Oldest First'),
+        ('category', 'Category (A-Z)'),
+        ('status', 'Status (A-Z)'),
+        ('user__email', 'Reporter Email (A-Z)'),
+        ('assigned_officer__email', 'Officer Email (A-Z)')
     ]
 
     status = forms.MultipleChoiceField(
@@ -102,7 +106,20 @@ class ComplaintFilterForm(forms.Form):
 
     reported_by = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'User Email'})
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Reporter Email'})
+    )
+
+    assigned_officer = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Officer Email'})
+    )
+
+    search_text = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Search description, location, or email'
+        })
     )
 
     sort_by = forms.ChoiceField(
