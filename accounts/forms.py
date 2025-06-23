@@ -7,7 +7,6 @@ from django import forms
 ROLE_CHOICES = [
     ('public', 'Public User'),
     ('officer', 'Environmental Officer'),
-    ('admin', 'Administrator'),
 ]
 
 

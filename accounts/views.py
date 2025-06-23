@@ -22,6 +22,11 @@ def register_view(request):
             password = form.cleaned_data.get('password1')  # ensure form has password1
             role = form.cleaned_data.get('role')  # Get selected role from form
 
+            # Prevent admin registration attempts (additional security)
+            if role == 'admin':
+                messages.error(request, 'Administrator accounts cannot be created through registration.')
+                return redirect('accounts:register')
+
             payload = {
                 'email': email,
                 'password': password,
