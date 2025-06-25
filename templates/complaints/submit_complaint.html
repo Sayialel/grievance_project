@@ -1,0 +1,342 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit Environmental Complaint{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Submit Environmental Complaint</h3>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="alert alert-info mb-4">
+              <i class="fas fa-info-circle"></i> Please provide detailed information about the environmental issue you're reporting. Your complaint will be assigned to an officer in your selected location.
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.title.id_for_label }}" class="form-label">Issue Title</label>
+              {{ form.title }}
+              {% if form.title.errors %}
+                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.description.id_for_label }}" class="form-label">Detailed Description</label>
+              {{ form.description }}
+              {% if form.description.errors %}
+                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+              {% endif %}
+              <div class="form-text">Please provide specific details about what, where, when, and how severe the environmental issue is.</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                  <div class="text-danger small mt-1">{{ form.location.errors }}</div>
+                {% endif %}
+                <div class="form-text">Select the constituency where the issue is located.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                  <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="{{ form.image.id_for_label }}" class="form-label">Upload Image (Optional)</label>
+              {{ form.image }}
+              {% if form.image.errors %}
+                <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+              {% endif %}
+              <div class="form-text">Photos help officers better understand and address the issue.</div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-paper-plane"></i> Submit Complaint
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Header Section -->
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-12 text-center mb-4">
+        <div class="text-warning mb-3">
+          <i class="fas fa-exclamation-triangle fa-2x"></i>
+        </div>
+
+
+
+        <div class="alert alert-success border-success mx-auto mt-4" style="max-width: 600px; background: rgba(39, 174, 96, 0.2); backdrop-filter: blur(10px);">
+          <h5 class="text-success fw-bold mb-2">You Have the Power to Change This</h5>
+          <p class="text-light mb-2">Your voice matters. Your report can make a difference.</p>
+          <p class="text-success fw-bold mb-0">Take action now.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Section -->
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8 col-xl-6">
+        <div class="card border-0 shadow-lg" style="background: rgba(52, 73, 94, 0.95); backdrop-filter: blur(15px); border-radius: 20px;">
+          <div class="card-body p-5">
+
+            <!-- Form Header -->
+            <div class="text-center mb-4">
+              <div class="bg-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-flag text-white fa-lg"></i>
+              </div>
+              <h2 class="text-white fw-bold mb-2">Submit a Complaint</h2>
+              <p class="text-light opacity-75">Make your voice heard • Report environmental violations • Protect your community</p>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data" novalidate>
+              {% csrf_token %}
+
+              <!-- Title Field -->
+              <div class="mb-4">
+                <label for="title" class="form-label text-light fw-semibold mb-2">
+                  <i class="fas fa-heading me-2 text-warning"></i>Title
+                </label>
+                <input type="text"
+                       class="form-control form-control-lg border-0 shadow-sm"
+                       name="title"
+                       id="title"
+                       required
+                       placeholder="Brief title describing the environmental issue"
+                       style="background: rgba(44, 62, 80, 0.8); color: #ecf0f1; border-radius: 12px;">
+              </div>
+
+              <!-- Description Field -->
+              <div class="mb-4">
+                <label for="description" class="form-label text-light fw-semibold mb-2">
+                  <i class="fas fa-file-alt me-2 text-warning"></i>Description
+                </label>
+                <textarea class="form-control border-0 shadow-sm"
+                          name="description"
+                          id="description"
+                          rows="5"
+                          required
+                          placeholder="Provide detailed information about the environmental violation, including what you observed, when it occurred, and any potential impacts..."
+                          style="background: rgba(44, 62, 80, 0.8); color: #ecf0f1; border-radius: 12px; resize: vertical;"></textarea>
+              </div>
+
+              <!-- Location Field -->
+              <div class="mb-4">
+                <label for="location" class="form-label text-light fw-semibold mb-2">
+                  <i class="fas fa-map-marker-alt me-2 text-warning"></i>Location
+                </label>
+                <input type="text"
+                       class="form-control form-control-lg border-0 shadow-sm"
+                       name="location"
+                       id="location"
+                       required
+                       style="background: rgba(44, 62, 80, 0.8); color: #ecf0f1; border-radius: 12px;">
+              </div>
+
+              <!-- Category Field -->
+              <div class="mb-4">
+                <label for="category" class="form-label text-light fw-semibold mb-2">
+                  <i class="fas fa-tags me-2 text-warning"></i>Category
+                </label>
+                <select class="form-select form-select-lg border-0 shadow-sm"
+                        name="category"
+                        id="category"
+                        required
+                        style="background: rgba(44, 62, 80, 0.8); color: #ecf0f1; border-radius: 12px;">
+                  {% for value, label in form.category.field.choices %}
+                    <option value="{{ value }}" style="background: #2c3e50; color: #ecf0f1;">{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <!-- Image Upload Field -->
+              <div class="mb-5">
+                <label for="image" class="form-label text-light fw-semibold mb-2">
+                  <i class="fas fa-camera me-2 text-warning"></i>Evidence (optional)
+                </label>
+                <div class="position-relative">
+                  <input class="form-control form-control-lg border-0 shadow-sm"
+                         type="file"
+                         name="image"
+                         id="image"
+                         accept="image/*"
+                         style="background: rgba(44, 62, 80, 0.8); color: #ecf0f1; border-radius: 12px;">
+                  <small class="text-light opacity-75 mt-2 d-block">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Upload photos or documents that support your complaint
+                  </small>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="d-grid mb-3">
+                <button type="submit"
+                        class="btn btn-lg fw-bold text-white shadow-lg position-relative overflow-hidden"
+                        style="background: linear-gradient(45deg, #e74c3c, #c0392b); border: none; border-radius: 12px; padding: 15px; transition: all 0.3s ease;">
+                  <i class="fas fa-paper-plane me-2"></i>
+                  Submit Complaint
+                  <div class="position-absolute top-0 start-0 w-100 h-100 opacity-0"
+                       style="background: linear-gradient(45deg, #c0392b, #a93226); transition: opacity 0.3s ease;"
+                       onmouseover="this.style.opacity='1'"
+                       onmouseout="this.style.opacity='0'"></div>
+                </button>
+              </div>
+
+              <!-- Footer Text -->
+              <div class="text-center">
+                <small class="text-light opacity-75">
+                  <i class="fas fa-shield-alt me-1 text-success"></i>
+                  Your information is secure and will be handled confidentially
+                </small>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Custom hover effects */
+  .form-control:focus, .form-select:focus {
+    background: rgba(44, 62, 80, 0.9) !important;
+    border-color: #f39c12 !important;
+    box-shadow: 0 0 0 0.2rem rgba(243, 156, 18, 0.25) !important;
+    color: #ecf0f1 !important;
+  }
+
+  .form-control::placeholder {
+    color: rgba(236, 240, 241, 0.6) !important;
+  }
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Submit Environmental Complaint{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Submit Environmental Complaint</h3>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="alert alert-info mb-4">
+              <i class="fas fa-info-circle"></i> Please provide detailed information about the environmental issue you're reporting. Your complaint will be assigned to an officer in your selected location.
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.title.id_for_label }}" class="form-label">Issue Title</label>
+              {{ form.title }}
+              {% if form.title.errors %}
+                <div class="text-danger small mt-1">{{ form.title.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-3">
+              <label for="{{ form.description.id_for_label }}" class="form-label">Detailed Description</label>
+              {{ form.description }}
+              {% if form.description.errors %}
+                <div class="text-danger small mt-1">{{ form.description.errors }}</div>
+              {% endif %}
+              <div class="form-text">Please provide specific details about what, where, when, and how severe the environmental issue is.</div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                {{ form.location }}
+                {% if form.location.errors %}
+                  <div class="text-danger small mt-1">{{ form.location.errors }}</div>
+                {% endif %}
+                <div class="form-text">Select the constituency where the issue is located.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                {{ form.category }}
+                {% if form.category.errors %}
+                  <div class="text-danger small mt-1">{{ form.category.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label for="{{ form.image.id_for_label }}" class="form-label">Upload Image (Optional)</label>
+              {{ form.image }}
+              {% if form.image.errors %}
+                <div class="text-danger small mt-1">{{ form.image.errors }}</div>
+              {% endif %}
+              <div class="form-text">Photos help officers better understand and address the issue.</div>
+            </div>
+
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-paper-plane"></i> Submit Complaint
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4) !important;
+  }
+
+  .card {
+    transition: transform 0.3s ease;
+  }
+
+  .alert {
+    border-radius: 15px !important;
+  }
+
+  /* Animated background */
+  body {
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>') repeat;
+    pointer-events: none;
+    z-index: -1;
+  }
+</style>
+{% endblock %}

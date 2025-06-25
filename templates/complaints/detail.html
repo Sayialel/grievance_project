@@ -1,0 +1,21 @@
+<!-- complaints/templates/complaints/detail.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ complaint.title }}</h2>
+    <p><strong>Submitted by:</strong> {{ complaint.user.username }}</p>
+    <p><strong>Category:</strong> {{ complaint.get_category_display }}</p>
+    <p><strong>Location:</strong> {{ complaint.location }}</p>
+    <p><strong>Status:</strong> {{ complaint.status }}</p>
+    <p><strong>Description:</strong></p>
+    <p>{{ complaint.description }}</p>
+
+    {% if complaint.image %}
+        <p><strong>Image:</strong><br>
+        <img src="{{ complaint.image.url }}" alt="Complaint Image" style="max-width: 400px;"></p>
+    {% endif %}
+
+    <a href="{% url 'complaints:update_complaint_status' complaint.id %}" class="btn btn-warning">Update Status</a>
+</div>
+{% endblock %}

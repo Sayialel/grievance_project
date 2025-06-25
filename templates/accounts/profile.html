@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Your Profile</h2>
+    <p><strong>Email:</strong> {{ email }}</p>
+    <p><strong>Firebase UID:</strong> {{ uid }}</p>
+    <a href="{% url 'accounts:logout' %}" class="btn btn-danger">Logout</a>
+</div>
+{% endblock %}
