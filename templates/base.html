@@ -117,13 +117,19 @@
                 </li>
             </ul>
             <ul class="navbar-nav ms-auto">
-                {% if request.session.firebase_user %}
+                {% if request.session.firebase_email %}
                 <li class="nav-item dropdown me-3">
                     <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-user-circle text-success me-2"></i> {{ request.session.firebase_user.email }}
+                        <i class="fas fa-user-circle text-success me-2"></i> {{ request.session.firebase_email }}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown" style="border-radius: 10px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                        <li><a class="dropdown-item" href="{% url 'complaints:dashboard' %}"><i class="fas fa-tachometer-alt me-2 text-success"></i> Dashboard</a></li>
+                        {% if request.session.user_role == 'admin' %}
+                            <li><a class="dropdown-item" href="{% url 'dashboard:admin_dashboard' %}"><i class="fas fa-tachometer-alt me-2 text-success"></i> Dashboard</a></li>
+                        {% elif request.session.user_role == 'officer' %}
+                            <li><a class="dropdown-item" href="{% url 'dashboard:officer_dashboard' %}"><i class="fas fa-tachometer-alt me-2 text-success"></i> Dashboard</a></li>
+                        {% else %}
+                            <li><a class="dropdown-item" href="{% url 'complaints:user_dashboard' %}"><i class="fas fa-tachometer-alt me-2 text-success"></i> Dashboard</a></li>
+                        {% endif %}
                         <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2 text-success"></i> Profile</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>

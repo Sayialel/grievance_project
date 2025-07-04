@@ -74,6 +74,75 @@ def register_view(request):
     return render(request, 'accounts/register.html', {'form': form})
 
 # ---------------------------
+# Add User (Officer) View
+# ---------------------------
+from complaints.decorators import admin_required
+
+@admin_required
+def add_user_view(request):
+    """Allow administrators to add new Environmental Officer accounts"""
+    if request.method == 'POST':
+        # Ensure role is always officer
+        post_data = request.POST.copy()
+        post_data['role'] = 'officer'
+        form = RegisterForm(post_data)
+        if form.is_valid():
+            # Reuse register logic (without allowing role override)
+            email = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password1')
+            location = form.cleaned_data.get('location', 'other')
+
+            # Officers must have a constituency
+            if location == 'other':
+                messages.error(request, 'Environmental Officers must select a specific constituency.')
+                return render(request, 'accounts/add_user.html', {
+                    'form': form,
+                    'locations': UserProfile.NAIROBI_CONSTITUENCIES,
+                })
+
+            # Call Firebase signUp endpoint to create account
+            payload = {
+                'email': email,
+                'password': password,
+                'returnSecureToken': True
+            }
+            firebase_url = f'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={FIREBASE_API_KEY}'
+            response = requests.post(firebase_url, json=payload)
+            data = response.json()
+
+            if 'idToken' in data:
+                uid = data['localId']
+
+                # Create UserProfile in Django
+                UserProfile.objects.create(
+                    uid=uid,
+                    email=email,
+                    role='officer',
+                    location=location,
+                )
+
+                # Save to Firestore
+                db.collection('users').document(uid).set({
+                    'email': email,
+                    'role': 'officer',
+                    'location': location,
+                    'created_at': firestore.SERVER_TIMESTAMP,
+                })
+
+                messages.success(request, 'Environmental Officer account created successfully.')
+                return redirect('dashboard:admin_dashboard')
+            else:
+                error = data.get('error', {}).get('message', 'Failed to create user in Firebase.')
+                messages.error(request, f'Firebase Error: {error}')
+    else:
+        form = RegisterForm(initial={'role': 'officer'})
+
+    return render(request, 'accounts/add_user.html', {
+        'form': form,
+        'locations': UserProfile.NAIROBI_CONSTITUENCIES,
+    })
+
+# ---------------------------
 # Login View
 # ---------------------------
 def login_view(request):

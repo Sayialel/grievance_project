@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="container py-5">
+  <h2 class="mb-4 text-center">My Performance Metrics</h2>
+
+  <div class="row g-4 mb-4">
+    <div class="col-md-3 col-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Total Assigned</h5>
+          <h3 class="text-primary">{{ total_assigned }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Resolved</h5>
+          <h3 class="text-success">{{ resolved_count }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">In&nbsp;Progress</h5>
+          <h3 class="text-info">{{ in_progress_count }}</h3>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3 col-6">
+      <div class="card text-center shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Pending</h5>
+          <h3 class="text-warning">{{ pending_count }}</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="card shadow-sm p-3">
+        <h5 class="text-center">Status Distribution</h5>
+        <canvas id="statusChart"></canvas>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card shadow-sm p-3">
+        <h5 class="text-center">Resolved Complaints (Last 6 Months)</h5>
+        <canvas id="monthChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="alert alert-info text-center">
+        Average resolution time: <strong>{{ avg_resolution_days }} days</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Status distribution pie
+  const statusCtx = document.getElementById('statusChart');
+  new Chart(statusCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Resolved', 'In Progress', 'Pending'],
+      datasets: [{
+        data: [{{ resolved_count }}, {{ in_progress_count }}, {{ pending_count }}],
+        backgroundColor: ['#2ecc71', '#3498db', '#f1c40f'],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+
+  // Resolved per month bar
+  const monthCtx = document.getElementById('monthChart');
+  new Chart(monthCtx, {
+    type: 'bar',
+    data: {
+      labels: {{ months_labels|safe }},
+      datasets: [{
+        label: 'Resolved',
+        data: {{ resolved_by_month|safe }},
+        backgroundColor: '#2ecc71'
+      }]
+    },
+    options: {
+      scales: {
+        y: { beginAtZero: true, precision: 0 }
+      },
+      plugins: { legend: { display: false } }
+    }
+  });
+</script>
+{% endblock %}

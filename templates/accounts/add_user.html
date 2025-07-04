@@ -1,0 +1,224 @@
+
+{% extends 'base.html' %}
+{% block title %}Add New User - Environmental Grievance System{% endblock %}
+
+{% block content %}
+    <div class="auth-wrapper">
+      <div class="auth-card">
+    <!-- Logo & Header -->
+    <div class="card-header text-center">
+      <div class="mb-2">
+        <i class="fas fa-user-plus fa-3x text-white mb-3"></i>
+      </div>
+      <h3>Add New Officer</h3>
+    </div>
+
+    <!-- Card Body -->
+    <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                              <form method="post" action="{% url 'accounts:add_user' %}" class="needs-validation" novalidate>
+                                {% csrf_token %}
+
+                                <!-- Full Name field -->
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                  <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Full Name" required>
+                                </div>
+
+                                <!-- Email field -->
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                  <input type="email" class="form-control" id="email" name="email" placeholder="Email Address" required>
+                                </div>
+
+                                <!-- Password field -->
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                  <input type="password" class="form-control" id="password1" name="password1" placeholder="Password" required>
+                                </div>
+
+                                <!-- Confirm Password field -->
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text"><i class="fas fa-check-double"></i></span>
+                                  <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm Password" required>
+                                </div>
+
+                                <!-- Role field - default to officer -->
+                                <div class="input-group mb-3">
+                                  <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                                  <input type="hidden" id="role" name="role" value="officer">
+                                  <input type="text" class="form-control" value="Environmental Officer" readonly>
+                                </div>
+                                <small class="form-text text-muted mb-4 d-block">Creating account for Environmental Officer</small>
+
+                                <!-- Location field -->
+                                <div class="input-group mb-3" id="locationField">
+                                  <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                  <select class="form-select" id="location" name="location" required>
+                                    <option value="" disabled selected>Select Constituency</option>
+                                    {% for value, label in locations %}
+                                      {% if value != 'other' %}
+                                        <option value="{{ value }}">{{ label }}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                                <div id="selectedLocation" class="mb-3 ps-4 d-none">
+                                  <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> <span id="locationText"></span></span>
+                                </div>
+                                <small class="form-text text-muted mb-4 d-block">Select the constituency this officer will manage</small>
+
+                                <script>
+                                  document.addEventListener('DOMContentLoaded', function() {
+                                    // Location selection
+                                    const locationSelect = document.getElementById('location');
+                                    const selectedLocation = document.getElementById('selectedLocation');
+                                    const locationText = document.getElementById('locationText');
+
+                                    locationSelect.addEventListener('change', function() {
+                                      if (this.value) {
+                                        locationText.textContent = this.options[this.selectedIndex].text;
+                                        selectedLocation.classList.remove('d-none');
+                                      } else {
+                                        selectedLocation.classList.add('d-none');
+                                      }
+                                    });
+
+                                    // Form validation
+                                    const form = document.querySelector('.needs-validation');
+                                    form.addEventListener('submit', function(event) {
+                                      if (!form.checkValidity()) {
+                                        event.preventDefault();
+                                        event.stopPropagation();
+                                      }
+                                      form.classList.add('was-validated');
+                                    }, false);
+                                  });
+
+
+                                </script>
+
+                                <div class="d-grid gap-2 mt-4">
+                                  <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-user-plus me-2"></i>Create Officer Account
+                                  </button>
+                                </div>
+
+                                <script>
+                                  document.addEventListener('DOMContentLoaded', function() {
+                                    const activeStatus = document.getElementById('activeStatus');
+                                    const statusText = document.getElementById('statusText');
+
+                                    activeStatus.addEventListener('change', function() {
+                                      if (this.checked) {
+                                        statusInput.value = 'active';
+                                        statusText.textContent = 'Active';
+                                        statusText.className = 'ms-2 text-success';
+                                      } else {
+                                        statusInput.value = 'inactive';
+                                        statusText.textContent = 'Inactive';
+                                        statusText.className = 'ms-2 text-danger';
+                                      }
+                                    });
+                                  });
+                                </script>
+
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'dashboard:dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                            </a>
+                        </div>
+      </form>
+    </div>
+
+    <!-- Footer with links -->
+    <div class="card-footer text-center">
+      <p class="mb-0">Go back to <a href="{% url 'dashboard:admin_dashboard' %}?tab=officers" class="auth-link">Officer Management</a></p>
+    </div>
+  </div>
+</div>
+
+<style>
+.auth-wrapper {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #115740 0%, #1a8753 100%);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 550px;
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.card-header {
+  background: linear-gradient(to right, #2ecc71, #27ae60);
+  color: white;
+  padding: 30px;
+  position: relative;
+}
+
+.card-body {
+  padding: 30px;
+}
+
+.card-footer {
+  background-color: #f8f9fa;
+  padding: 20px;
+  border-top: 1px solid #eee;
+}
+
+.auth-link {
+  color: #2ecc71;
+  text-decoration: none;
+}
+
+.auth-link:hover {
+  text-decoration: underline;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role');
+    const locationField = document.getElementById('locationField');
+
+    function toggleLocationVisibility() {
+        if (roleSelect.value === 'officer') {
+            locationField.style.display = 'block';
+            document.getElementById('location').required = true;
+        } else {
+            locationField.style.display = 'none';
+            document.getElementById('location').required = false;
+        }
+    }
+
+    roleSelect.addEventListener('change', toggleLocationVisibility);
+    toggleLocationVisibility(); // Initial state
+
+    // Form validation
+    const form = document.querySelector('.needs-validation');
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

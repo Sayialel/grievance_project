@@ -3,6 +3,9 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db.models import Count, Q
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+from complaints.decorators import admin_required
 from complaints.models import Complaint, ComplaintActivity
 from accounts.models import UserProfile
 
@@ -234,6 +237,25 @@ def dashboard_view(request):
     else:  # public user
         return redirect('complaints:user_dashboard')
 
+@admin_required
+def edit_officer_view(request, officer_id):
+    """Edit Environmental Officer details"""
+    officer = get_object_or_404(UserProfile, id=officer_id, role='officer')
+
+    if request.method == 'POST':
+        location = request.POST.get('location', officer.location)
+        officer.location = location
+        officer.save()
+        messages.success(request, 'Officer details updated successfully.')
+        return redirect(f"{reverse('dashboard:admin_dashboard')}?tab=officers")
+
+    context = {
+        'officer': officer,
+        'locations': UserProfile.NAIROBI_CONSTITUENCIES,
+        'email': request.session.get('firebase_email'),
+    }
+    return render(request, 'dashboard/edit_officer.html', context)
+
 def statistics_view(request):
     return HttpResponse("Statistics View Placeholder")
 
@@ -425,6 +447,61 @@ def generate_report(request):
     except Exception as e:
         messages.error(request, f'Error generating report: {str(e)}')
         return redirect('dashboard:admin_dashboard')
+
+def officer_performance_view(request):
+    """Performance dashboard for environmental officer with charts"""
+    uid = request.session.get('firebase_local_id')
+    user_role = request.session.get('user_role')
+    if not uid or user_role != 'officer':
+        messages.error(request, 'You must be logged in as an Environmental Officer to access this page.')
+        return redirect('accounts:login')
+
+    officer = UserProfile.objects.filter(uid=uid).first()
+    if not officer:
+        messages.error(request, 'Officer profile not found.')
+        return redirect('accounts:login')
+
+    # Complaints assigned to officer's location
+    complaints_qs = Complaint.objects.filter(location=officer.location)
+
+    total_assigned = complaints_qs.count()
+    resolved_qs = complaints_qs.filter(status='Resolved')
+    resolved_count = resolved_qs.count()
+    pending_count = complaints_qs.filter(status='Pending').count()
+    in_progress_count = complaints_qs.filter(status='In Progress').count()
+
+    # Average resolution time in days for resolved complaints
+    from datetime import datetime
+    import math
+    # Average resolution time calculation skipped (date_resolved not available)
+    avg_resolution_days = 0
+
+
+    # Resolved per month (last 6 months)
+    from django.utils import timezone
+    now = timezone.now()
+    months = []
+    resolved_by_month = []
+    for i in range(5, -1, -1):
+        month_date = (now.replace(day=1) - timezone.timedelta(days=30*i))
+        label = month_date.strftime('%b %Y')
+        months.append(label)
+        month_count = resolved_qs.filter(date_submitted__year=month_date.year, date_submitted__month=month_date.month).count()
+        resolved_by_month.append(month_count)
+
+    context = {
+        'total_assigned': total_assigned,
+        'resolved_count': resolved_count,
+        'pending_count': pending_count,
+        'in_progress_count': in_progress_count,
+        'avg_resolution_days': avg_resolution_days,
+        'months_labels': months,
+        'resolved_by_month': resolved_by_month,
+        'email': request.session.get('firebase_email'),
+    }
+
+    return render(request, 'dashboard/officer_performance.html', context)
+
 
 @admin_required
 def officer_management(request):

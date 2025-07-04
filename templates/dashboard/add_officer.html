@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Environmental Officer{% endblock %}
+
+{% block content %}
+<div class="container py-5" style="max-width: 700px;">
+    <h2 class="mb-4 text-success fw-bold"><i class="fas fa-user-plus me-2"></i>Add New Environmental Officer</h2>
+    <div class="card shadow border-0" style="border-radius: 15px;">
+        <div class="card-body p-4">
+            <form method="post" action="{% url 'dashboard:add_officer' %}">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="id_email" class="form-label fw-semibold">Officer Email Address</label>
+                    <input type="email" class="form-control" id="id_email" name="email" placeholder="name@example.com" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="id_password" class="form-label fw-semibold">Temporary Password</label>
+                    <input type="password" class="form-control" id="id_password" name="password" placeholder="Create a temporary password" required>
+                    <div class="form-text">The officer will be prompted to change this on first login.</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="id_location" class="form-label fw-semibold">Assign Constituency</label>
+                    <select class="form-select" id="id_location" name="location" required>
+                        <option value="" disabled selected>Select Constituency</option>
+                        {% for code, name in locations %}
+                        <option value="{{ code }}">{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100"><i class="fas fa-plus-circle me-2"></i>Register Officer</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

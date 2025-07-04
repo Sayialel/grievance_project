@@ -167,6 +167,10 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Email configuration (development)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'no-reply@ecogrievance.local'
+
 # Custom user model (to be created later)
 #AUTH_USER_MODEL = 'accounts.UserProfile'
 

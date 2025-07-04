@@ -5,6 +5,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from django.utils import timezone
+from django.http import JsonResponse
+from django.core.mail import send_mail
+from django.conf import settings
 
 from accounts.models import UserProfile
 from .models import Complaint, ComplaintActivity, ComplaintStatus
@@ -17,6 +20,31 @@ from .utils import auto_assign_officer
 
 def homepage(request):
     return render(request, 'complaints/homepage.html')
+
+def contact_view(request):
+    """Handle contact form submissions and email the message to EcoGrievances support."""
+    if request.method == 'POST':
+        name = request.POST.get('name') or request.GET.get('name')
+        email = request.POST.get('email') or request.GET.get('email')
+        subject = request.POST.get('subject') or 'Contact Form Message'
+        message = request.POST.get('message') or ''
+
+        full_message = f"From: {name} <{email}>\n\n{message}"
+
+        send_mail(
+            subject=f"EcoGrievance Contact: {subject}",
+            message=full_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=['ecogrievances@gmail.com'],
+            fail_silently=False,
+        )
+
+        # Support both AJAX and normal form submissions
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'success': True})
+        messages.success(request, 'Thank you for contacting us. We will respond shortly.')
+        return redirect('home')
+    return redirect('home')
 
 def dashboard_view(request):
     """Redirects users to the appropriate dashboard based on their role"""
