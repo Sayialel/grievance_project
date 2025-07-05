@@ -8,9 +8,17 @@
   <div class="row">
     <!-- Back button -->
     <div class="col-12 mb-3">
-      <a href="{% if user_type == 'admin' %}{% url 'complaints:admin_dashboard' %}{% elif user_type == 'officer' %}{% url 'dashboard:officer_dashboard' %}{% else %}{% url 'complaints:user_dashboard' %}{% endif %}" class="btn btn-outline-secondary">
-        <i class="fas fa-arrow-left"></i> Back to Dashboard
-      </a>
+      <a
+  href="{% if user_type == 'admin' %}
+            {% url 'dashboard:admin_dashboard' %}?tab=complaints
+         {% elif user_type == 'officer' %}
+            {% url 'dashboard:officer_dashboard' %}
+         {% else %}
+            {% url 'dashboard:user_dashboard' %}
+         {% endif %}"
+  class="btn btn-outline-secondary">
+  <i class="fas fa-arrow-left"></i> Back to Dashboard
+</a>
     </div>
 
     <!-- Complaint details -->

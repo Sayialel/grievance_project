@@ -266,21 +266,29 @@ from django.http import FileResponse
 import io
 from django.contrib.auth.decorators import login_required
 from complaints.decorators import admin_required
-
 @admin_required
 def generate_report(request):
     """Generate a PDF report of all complaints using ReportLab"""
     try:
-        # Get filtered complaints based on request parameters
         from complaints.forms import ComplaintFilterForm
-        filter_form = ComplaintFilterForm(request.GET or None)
+        import io
+        import datetime
+        from django.http import HttpResponse
+        from django.shortcuts import redirect
+        from django.contrib import messages
+        from reportlab.lib.pagesizes import letter, landscape
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib import colors
+        from reportlab.lib.units import inch
+        from django.db.models import Q
 
-        # Get all complaints for administrators
+        # Filter form
+        filter_form = ComplaintFilterForm(request.GET or None)
         all_complaints = Complaint.objects.all().order_by('-date_submitted')
 
-        # Apply filters if the form is valid
+        # Apply filters
         if filter_form.is_valid():
-            # Apply filters
             filters = {}
             if filter_form.cleaned_data.get('status'):
                 filters['status__in'] = filter_form.cleaned_data['status']
@@ -292,161 +300,133 @@ def generate_report(request):
                 filters['date_submitted__gte'] = filter_form.cleaned_data['date_from']
             if filter_form.cleaned_data.get('date_to'):
                 filters['date_submitted__lte'] = filter_form.cleaned_data['date_to']
-            # Filter by assigned officer
             if filter_form.cleaned_data.get('assigned_officer'):
-                officer_email = filter_form.cleaned_data['assigned_officer']
-                filters['assigned_officer__email__icontains'] = officer_email
-            # Filter by reporter/user
+                filters['assigned_officer__email__icontains'] = filter_form.cleaned_data['assigned_officer']
             if filter_form.cleaned_data.get('reported_by'):
-                user_email = filter_form.cleaned_data['reported_by']
-                filters['user__email__icontains'] = user_email
-
-            # Full-text search on description and location
-            search_text = filter_form.cleaned_data.get('search_text')
-            if search_text:
-                from django.db.models import Q
-                text_filters = Q(description__icontains=search_text) | \
-                              Q(location__icontains=search_text) | \
-                              Q(user__email__icontains=search_text)
-                all_complaints = all_complaints.filter(text_filters)
+                filters['user__email__icontains'] = filter_form.cleaned_data['reported_by']
 
             if filters:
                 all_complaints = all_complaints.filter(**filters)
 
-        # Create PDF using ReportLab
-        from reportlab.lib.pagesizes import letter, landscape
-        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
-        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-        from reportlab.lib import colors
-        from reportlab.lib.units import inch
-        import datetime
+            search_text = filter_form.cleaned_data.get('search_text')
+            if search_text:
+                all_complaints = all_complaints.filter(
+                    Q(description__icontains=search_text) |
+                    Q(location__icontains=search_text) |
+                    Q(user__email__icontains=search_text)
+                )
 
-        # Create a file-like buffer to receive PDF data
+        # Start generating PDF
         buffer = io.BytesIO()
-
-        # Create the PDF object using the buffer as its file
         doc = SimpleDocTemplate(
             buffer,
             pagesize=landscape(letter),
-            rightMargin=0.5*inch,
-            leftMargin=0.5*inch,
-            topMargin=0.5*inch,
-            bottomMargin=0.5*inch
+            rightMargin=0.5 * inch,
+            leftMargin=0.5 * inch,
+            topMargin=0.5 * inch,
+            bottomMargin=0.5 * inch
         )
 
-        # Get styles
         styles = getSampleStyleSheet()
         title_style = styles['Heading1']
         subtitle_style = styles['Heading2']
         normal_style = styles['Normal']
+        styleN = styles['Normal']
 
-        # Create custom styles
         header_style = ParagraphStyle(
             'HeaderStyle',
             parent=styles['Normal'],
             fontName='Helvetica-Bold',
             fontSize=10,
             textColor=colors.white,
-            alignment=1,  # Center alignment
+            alignment=1,  # Center
         )
 
-        # Container for the 'Flowable' objects
         elements = []
+        elements.append(Paragraph("Environmental Complaints Report", title_style))
+        elements.append(Spacer(1, 0.25 * inch))
+        elements.append(Paragraph(f"Generated on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", normal_style))
+        elements.append(Spacer(1, 0.25 * inch))
 
-        # Add title
-        report_title = Paragraph("Environmental Complaints Report", title_style)
-        elements.append(report_title)
-        elements.append(Spacer(1, 0.25*inch))
-
-        # Add date
-        date_text = Paragraph(f"Generated on: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}", normal_style)
-        elements.append(date_text)
-        elements.append(Spacer(1, 0.25*inch))
-
-        # Add statistics
         total_count = all_complaints.count()
         pending_count = all_complaints.filter(status='Pending').count()
         in_progress_count = all_complaints.filter(status='In Progress').count()
         resolved_count = all_complaints.filter(status='Resolved').count()
 
-        stats_text = Paragraph(f"Total Complaints: {total_count} | Pending: {pending_count} | In Progress: {in_progress_count} | Resolved: {resolved_count}", subtitle_style)
-        elements.append(stats_text)
-        elements.append(Spacer(1, 0.25*inch))
+        stats_text = f"Total Complaints: {total_count} | Pending: {pending_count} | In Progress: {in_progress_count} | Resolved: {resolved_count}"
+        elements.append(Paragraph(stats_text, subtitle_style))
+        elements.append(Spacer(1, 0.25 * inch))
 
-        # Table headers
-        headers = [
-            'ID', 'Category', 'Description', 'Location', 'Status', 
-            'Date Submitted', 'Assigned Officer', 'Reported By'
-        ]
-
-        # Format headers with paragraph style
+        headers = ['ID', 'Category', 'Description', 'Location', 'Status', 'Date Submitted', 'Assigned Officer', 'Reported By']
         formatted_headers = [Paragraph(header, header_style) for header in headers]
-
-        # Table data
         data = [formatted_headers]
 
-        # Add complaint data to table
         for complaint in all_complaints:
-            # Get assigned officer email or 'Unassigned'
             officer_email = complaint.assigned_officer.email if complaint.assigned_officer else 'Unassigned'
-            # Get reporter email or 'Anonymous'
             reporter_email = complaint.user.email if complaint.user else 'Anonymous'
-
-            # Format date
             formatted_date = complaint.date_submitted.strftime('%Y-%m-%d') if complaint.date_submitted else 'N/A'
 
-            # Truncate description if too long
-            description = complaint.description[:100] + '...' if len(complaint.description) > 100 else complaint.description
-
-            row = [
+            wrapped_row = [
                 str(complaint.id),
                 complaint.category,
-                description,
+                Paragraph(complaint.description, styleN),
                 complaint.location,
                 complaint.status,
                 formatted_date,
-                officer_email,
-                reporter_email
+                Paragraph(officer_email, styleN),
+                Paragraph(reporter_email, styleN)
             ]
-            data.append(row)
+            data.append(wrapped_row)
 
-        # Create table
-        table = Table(data, repeatRows=1)
+        col_widths = [
+            0.6 * inch,  # ID
+            1.0 * inch,  # Category
+            3.0 * inch,  # Description
+            1.0 * inch,  # Location
+            1.0 * inch,  # Status
+            1.0 * inch,  # Date Submitted
+            1.2 * inch,  # Assigned Officer
+            1.2 * inch  # Reported By
+        ]
 
-        # Style the table
-        table_style = TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),
+        table = Table(data, colWidths=col_widths, repeatRows=1)
+
+        table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkgreen),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
-            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
             ('FONTSIZE', (0, 0), (-1, 0), 10),
             ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
             ('BACKGROUND', (0, 1), (-1, -1), colors.white),
             ('GRID', (0, 0), (-1, -1), 1, colors.black),
             ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-            # Zebra striping for rows
-            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey])
-        ])
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.lightgrey]),
+            ('ALIGN', (0, 1), (0, -1), 'CENTER'),   # ID
+            ('ALIGN', (1, 1), (1, -1), 'CENTER'),   # Category
+            ('ALIGN', (2, 1), (2, -1), 'LEFT'),     # Description
+            ('ALIGN', (3, 1), (3, -1), 'CENTER'),   # Location
+            ('ALIGN', (4, 1), (4, -1), 'CENTER'),   # Status
+            ('ALIGN', (5, 1), (5, -1), 'CENTER'),   # Date Submitted
+            ('ALIGN', (6, 1), (6, -1), 'LEFT'),     # Assigned Officer
+            ('ALIGN', (7, 1), (7, -1), 'LEFT'),     # Reported By
+        ]))
 
-        table.setStyle(table_style)
         elements.append(table)
-
-        # Build PDF document
         doc.build(elements)
 
-        # Get the value of the BytesIO buffer and set response
         pdf = buffer.getvalue()
         buffer.close()
 
-        # Create the HTTP response with PDF content
         response = HttpResponse(content_type='application/pdf')
         response['Content-Disposition'] = f'attachment; filename="environmental_report_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf"'
         response.write(pdf)
-
         return response
+
     except Exception as e:
         messages.error(request, f'Error generating report: {str(e)}')
         return redirect('dashboard:admin_dashboard')
+
 
 def officer_performance_view(request):
     """Performance dashboard for environmental officer with charts"""

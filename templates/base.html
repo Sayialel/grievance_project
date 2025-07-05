@@ -130,7 +130,6 @@
                         {% else %}
                             <li><a class="dropdown-item" href="{% url 'complaints:user_dashboard' %}"><i class="fas fa-tachometer-alt me-2 text-success"></i> Dashboard</a></li>
                         {% endif %}
-                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-cog me-2 text-success"></i> Profile</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
                     </ul>
@@ -191,31 +190,17 @@
                     <li><a href="{% url 'home' %}" class="text-decoration-none text-white-50 hover-success"><i class="fas fa-angle-right me-2 small"></i>Home</a></li>
                     <li><a href="{% url 'home' %}#about" class="text-decoration-none text-white-50 hover-success"><i class="fas fa-angle-right me-2 small"></i>About us</a></li>
                     <li><a href="{% url 'home' %}#contact" class="text-decoration-none text-white-50 hover-success"><i class="fas fa-angle-right me-2 small"></i>Contact</a></li>
-                    <li><a href="{% url 'home' %}#privacy" class="text-decoration-none text-white-50 hover-success"><i class="fas fa-angle-right me-2 small"></i>Privacy Policy</a></li>
                 </ul>
             </div>
             <div class="col-lg-3 col-md-6">
                 <h5 class="mb-3">Help & Support</h5>
                 <ul class="list-unstyled">
                     <li><a href="{% url 'complaints:submit_complaint' %}" class="text-decoration-none text-white-50 hover-success"><i class="fas fa-clipboard-list me-2 small"></i>Report an Issue</a></li>
-                    <li><a href="{% url 'home' %}#faq" class="text-decoration-none text-white-50 hover-success"><i class="fas fa-question-circle me-2 small"></i>FAQ</a></li>
                     <li><a href="{% url 'home' %}#contact" class="text-decoration-none text-white-50 hover-success"><i class="fas fa-envelope me-2 small"></i>Contact Support</a></li>
                 </ul>
             </div>
-            <div class="col-lg-3 col-md-6">
-                <h5 class="mb-3">Connect with us</h5>
-                <div class="d-flex">
-                    <a href="#" class="me-3 text-white-50"><i class="fab fa-facebook fa-lg"></i></a>
-                    <a href="#" class="me-3 text-white-50"><i class="fab fa-twitter fa-lg"></i></a>
-                    <a href="#" class="me-3 text-white-50"><i class="fab fa-instagram fa-lg"></i></a>
-                    <a href="#" class="text-white-50"><i class="fab fa-linkedin fa-lg"></i></a>
-                </div>
-                <div class="mt-4">
-                    <p class="small mb-2">Subscribe to our newsletter</p>
-                    <div class="input-group">
-                        <input type="email" class="form-control" placeholder="Email" style="border-radius: 8px 0 0 8px;">
-                        <button class="btn btn-success" type="button" style="border-radius: 0 8px 8px 0;"><i class="fas fa-paper-plane"></i></button>
-                    </div>
+
+
                 </div>
             </div>
         </div>
